@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz aniversário, Tontinha 💖</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #ff9ecb, #ff69b4, #ffc0cb);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, p {
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+            font-weight: bold;
+        }
+        
+        .container {
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+            background: rgba(0,0,0,0.1);
+            border-radius: 20px;
+            margin: 20px;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .nav button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: white;
+            color: #ff69b4;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        a {
+            display: block;
+            color: white;
+            text-align: center;
+            margin: 6px;
+            font-weight: bold;
+        }
+        
+        .cats {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .falling {
+            position: absolute;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+        
+        /* ESTILOS DO MINI JOGO */
+        .game-container {
+            max-width: 400px;
+            margin: 20px auto;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        #gameCanvas {
+            border: 3px solid #ff69b4;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #fff, #ffe4e1);
+            display: block;
+            margin: 0 auto 15px;
+            cursor: pointer;
+        }
+        
+        .game-info {
+            margin: 15px 0;
+            font-size: 18px;
+            color: #ff69b4;
+            font-weight: bold;
+        }
+        
+        .game-controls {
+            margin: 10px 0;
+        }
+        
+        .game-controls button {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .hearts {
+            font-size: 24px;
+            color: #ff1493;
+            margin: 10px 0;
+        }
+        
+        .win-message {
+            color: #ff69b4;
+            font-size: 22px;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- PLAYER DE MÚSICA -->
+    <div style="position:fixed; top:10px; right:10px; z-index:999; background:rgba(255,255,255,0.8); padding:10px 15px; border-radius:15px; text-align:center;">
+        <p style="margin:0; font-size:12px; color:#ff69b4; font-weight:bold;">Você Me Dá Sorte 💖</p>
+        <button onclick="toggleMusic()" style="margin-top:5px; border:none; padding:5px 10px; border-radius:10px; background:#ff69b4; color:white; cursor:pointer;">Play / Pause</button>
+    </div>
+    
+    <audio id="musica" autoplay loop>
+        <source src="musica.mp3.mpeg" type="audio/mpeg">
+    </audio>
+    
+    <div class="cats" id="cats"></div>
+    
+    <div class="container">
+        <h1>Feliz aniversário, Tontinha 💖</h1>
+        <p><br>Que sua vida continue sendo linda, intensa e cheia de cor.<br>Feliz aniversário 💕</p>
+        
+        <div class="nav">
+            <button onclick="show('home')">Início</button>
+            <button onclick="show('arte')">Você é arte</button>
+            <button onclick="show('links')">Links</button>
+            <button onclick="show('historia')">Nossa história</button>
+        </div>
+        
+        <div id="home" class="section active"></div>
+        
+        <div id="arte" class="section">
+            <h2>Você é arte</h2>
+            <p>Você é arte.<br>Você está nos filmes que eu assisto,<br>nas músicas que eu escuto,<br>nos livros que eu leio.<br><br>Você é poesia viva 💖</p>
+        </div>
+        
+        <div id="links" class="section">
+            <h2>Coisas que me lembram você 💖</h2>
+            <p>vídeos que me lembraram você e eu me segurei pra enviar pra não encher muito o saco 💕</p>
+            <div id="linksContainer"></div>
+        </div>
+        
+        <!-- NOVA ABA - NOSSA HISTÓRIA -->
+        <div id="historia" class="section">
+            <h2>Nossa história 💕</h2>
+            <p> o gatinho se chama fiona, leve ela pra um novo lar 🥰</p>
+            
+            <div class="game-container">
+                <div class="hearts" id="hearts">💖💖💖</div>
+                <canvas id="gameCanvas" width="350" height="300"></canvas>
+                <div class="game-info">
+                    <div>Pontos: <span id="score">0</span></div>
+                    <div>Você: <span id="playerPos">😊🐱</span></div>
+                </div>
+                <div class="game-controls">
+                    <button onclick="movePlayer('left')">⬅️</button>
+                    <button onclick="movePlayer('right')">➡️</button>
+                    <button onclick="resetGame()">🔄 Novo jogo</button>
+                </div>
+                <div id="winMessage" class="win-message" style="display:none;">
+                    🎉 VOCÊ ENTREGOU O GATINHO! 💕<br>
+                    Assim como encontrei sorte em vc... fiona encontrou um lar🥰🐱
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function show(id){
+            document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // CONTROLE DE PLAY/PAUSE
+        function toggleMusic(){
+            const audio = document.getElementById('musica');
+            if(audio.paused){
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            const audio = document.getElementById('musica');
+            audio.play().catch(()=>{});
+        });
+
+        // IMAGENS DE GATO
+        const catImages = [
+            'https://i.pinimg.com/736x/58/5e/b6/585eb6221c399a480f3956d7d5781338.jpg',
+            'https://i.pinimg.com/736x/37/54/05/3754057f86b8b7f8021a28518acc3e98.jpg',
+            'https://i.pinimg.com/736x/24/a8/cf/24a8cf57a75d6772e72ca7a1f3dfcbc2.jpg',
+            'https://i.pinimg.com/1200x/ad/45/4f/ad454fc5e6139619fa724416f522e2ba.jpg',
+            'https://i.pinimg.com/1200x/24/e8/1a/24e81a515a405b8eda8be9929ecb9321.jpg',
+            'https://i.pinimg.com/736x/59/fa/1b/59fa1b038165e28e64d9d5243175ad17.jpg',
+            'https://i.pinimg.com/736x/be/06/16/be06163bd4fd4310788dd0b6ff1cd394.jpg',
+            'https://i.pinimg.com/736x/ef/30/d1/ef30d1bf84bf460dcf8188f23e78984a.jpg',
+            'https://i.pinimg.com/736x/41/49/92/414992c64f4832df381d932b2040b914.jpg',
+            'https://i.pinimg.com/1200x/3c/0d/f6/3c0df6349087c51167cde60011ae1937.jpg',
+            'https://i.pinimg.com/736x/e0/e6/81/e0e681ebd9e83adcc0dd080990aac312.jpg',
+            'https://i.pinimg.com/736x/e5/b6/fb/e5b6fb04ccb914adc22e41013539d02b.jpg',
+            'https://i.pinimg.com/736x/19/e3/f2/19e3f23429e414a8b295937ec3c0353c.jpg'
+        ];
+
+        const cats = document.getElementById('cats');
+
+        function criarGato() {
+            let c = document.createElement('img');
+            c.src = catImages[Math.floor(Math.random()*catImages.length)];
+            c.className = 'falling';
+            c.style.left = Math.random()*100+'%';
+            c.style.width = (60 + Math.random()*80) + 'px';
+            c.style.animationDuration = (3 + Math.random()*3) + 's';
+            cats.appendChild(c);
+        }
+
+        setInterval(criarGato, 50);
+        for(let i=0;i<200;i++){
+            setTimeout(criarGato, i*20);
+        }
+
+        // LINKS
+        const links=[
+            "https://www.instagram.com/reel/DVY6T9PkRUl/?igsh=MWoxdDg3MjBnMWRzaQ==",
+            "https://www.instagram.com/reel/DS2Lr48EXRg/?igsh=Z2Q2bDVmcmVsejRn"
+        ];
+        const container=document.getElementById('linksContainer');
+        links.forEach(l=>{
+            let a=document.createElement('a');
+            a.href=l;
+            a.innerText='💖 link 💖';
+            a.target='_blank';
+            container.appendChild(a);
+        });
+
+        // MINI JOGO - NOSSA HISTÓRIA COM GATINHO 🐱
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const playerPosEl = document.getElementById('playerPos');
+        const winMessage = document.getElementById('winMessage');
+        const heartsEl = document.getElementById('hearts');
+
+        let gameState = {
+            playerX: 50,
+            playerY: 220,
+            catX: 280,
+            catY: 220,
+            score: 0,
+            lives: 3,
+            gameWon: false,
+            gameRunning: true
+        };
+
+        function drawGame() {
+            // Limpa canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Fundo com grama
+            ctx.fillStyle = '#90EE90';
+            ctx.fillRect(0, 250, canvas.width, 50);
+            
+            // Céu
+            const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#FFB6C1');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, 250);
+            
+            // Desenha jogador (você CARREGANDO o gatinho 😊🐱)
+            ctx.font = '32px Arial';
+            ctx.fillText('😊', gameState.playerX, gameState.playerY);
+            ctx.font = '28px Arial';
+            ctx.fillText('🐱', gameState.playerX + 35, gameState.playerY + 5);
+            playerPosEl.textContent = `Você + Gatinho 🐱`;
+            
+            // Desenha personagem destino (ela 🥰) esperando o gatinho
+            ctx.font = '40px Arial';
+            ctx.fillText('🥰', gameState.catX, gameState.catY);
+            
+            // Coração flutuante esperando o gatinho
+            ctx.font = '30px Arial';
+            ctx.fillText('💖', gameState.catX + 20, gameState.catY - 20);
+            ctx.fillText('💖', gameState.catX + 25, gameState.catY + 10);
+            
+            // Obstáculos fofos (flores)
+            ctx.font = '25px Arial';
+            ctx.fillText('🌸', 100, 200);
+            ctx.fillText('🌺', 220, 180);
+            
+            // Título do jogo no topo
+            ctx.font = '20px Arial';
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillText('Leve o gatinho até ela! 🐱➡️🥰', 20, 30);
+        }
+
+        function movePlayer(direction) {
+            if (!gameState.gameRunning || gameState.gameWon) return;
+            
+            if (direction === 'left' && gameState.playerX > 10) {
+                gameState.playerX -= 20;
+            } else if (direction === 'right' && gameState.playerX < 260) {
+                gameState.playerX += 20;
+            }
+            
+            checkWin();
+            drawGame();
+        }
+
+        function checkWin() {
+            const distance = Math.abs(gameState.playerX - gameState.catX);
+            if (distance < 40) {
+                gameState.gameWon = true;
+                gameState.gameRunning = false;
+                gameState.score += 100;
+                winMessage.style.display = 'block';
+                scoreEl.textContent = gameState.score;
+            }
+        }
+
+        function resetGame() {
+            gameState = {
+                playerX: 50,
+                playerY: 220,
+                catX: 280,
+                catY: 220,
+                score: 0,
+                lives: 3,
+                gameWon: false,
+                gameRunning: true
+            };
+            winMessage.style.display = 'none';
+            heartsEl.textContent = '💖💖💖';
+            scoreEl.textContent = '0';
+            playerPosEl.textContent = 'Você + Gatinho 🐱';
+            drawGame();
+        }
+
+        // Controles por toque/teclado
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < canvas.width / 2) {
+                movePlayer('left');
+            } else {
+                movePlayer('right');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') movePlayer('left');
+            if (e.key === 'ArrowRight') movePlayer('right');
+        });
+
+        // Inicia o jogo
+        drawGame();
+    </script>
+</body>
+</html>
